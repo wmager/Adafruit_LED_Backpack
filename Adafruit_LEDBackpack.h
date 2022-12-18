@@ -18,19 +18,13 @@
  *
  * MIT license, all text above must be included in any redistribution
  */
+#include <stdlib.h>
+#include <cstdint>
+#include <cstring>
+#include <string>
 
 #ifndef Adafruit_LEDBackpack_h
 #define Adafruit_LEDBackpack_h
-
-#if (ARDUINO >= 100)
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
-
-#include <Adafruit_I2CDevice.h>
-
-#include "Adafruit_GFX.h"
 
 #define LED_ON 1  ///< GFX color of lit LED segments (single-color displays)
 #define LED_OFF 0 ///< GFX color of unlit LED segments (single-color displays)
@@ -47,8 +41,9 @@
 #define HT16K33_BLINK_HALFHZ 3       ///< I2C value for 0.5 Hz blink
 
 #define HT16K33_CMD_BRIGHTNESS 0xE0 ///< I2C register for BRIGHTNESS setting
-
 #define SEVENSEG_DIGITS 5 ///< # Digits in 7-seg displays, plus NUL end
+#define PROGMEM 
+#define DEC 0
 
 /*!
     @brief  Class encapsulating the raw HT16K33 controller device.
@@ -61,14 +56,18 @@ public:
   Adafruit_LEDBackpack(void);
 
   /*!
+    @brief  Destructor for HT16K33 devices.
+  */
+  ~Adafruit_LEDBackpack(void);
+
+  /*!
     @brief  Start I2C and initialize display state (blink off, full
             brightness).
     @param  _addr  I2C address.
     @param  theWire  TwoWire bus reference to use.
     @return  true if successful, otherwise false
-
   */
-  bool begin(uint8_t _addr = 0x70, TwoWire *theWire = &Wire);
+  bool begin(uint8_t _addr = 0x70);
 
   /*!
     @brief  Set display brightness.
@@ -99,112 +98,6 @@ public:
 
   uint16_t displaybuffer[8]; ///< Raw display data
 
-protected:
-  Adafruit_I2CDevice *i2c_dev = NULL; ///< Pointer to I2C bus interface
-};
-
-/*!
-    @brief  Class for 24-element bargraph displays.
-*/
-class Adafruit_24bargraph : public Adafruit_LEDBackpack {
-public:
-  /*!
-    @brief  Constructor for 24-element bargraph displays.
-  */
-  Adafruit_24bargraph(void);
-
-  /*!
-    @brief  Set color a single bar (dot).
-    @param  bar    Bar index (0 to 23).
-    @param  color  Bar color: LED_OFF, LED_GREEN, LED_YELLOW or LED_RED.
-  */
-  void setBar(uint8_t bar, uint8_t color);
-};
-
-/*!
-    @brief  Class for 8x16 pixel single-color matrices.
-*/
-class Adafruit_8x16matrix : public Adafruit_LEDBackpack, public Adafruit_GFX {
-public:
-  /*!
-    @brief  Constructor for 8x16 pixel single-color matrices.
-  */
-  Adafruit_8x16matrix(void);
-
-  /*!
-    @brief  Lowest-level pixel drawing function required by Adafruit_GFX.
-            Does not have an immediate effect -- must call writeDisplay()
-            after any drawing operations to refresh display contents.
-    @param  x      Pixel column (horizontal).
-    @param  y      Pixel row (vertical).
-    @param  color  Pixel color (1 = pixel on, 0 = pixel off).
-  */
-  void drawPixel(int16_t x, int16_t y, uint16_t color);
-};
-
-/*!
-    @brief  Class for 8x16 pixel single-color mini matrices.
-*/
-class Adafruit_8x16minimatrix : public Adafruit_LEDBackpack,
-                                public Adafruit_GFX {
-public:
-  /*!
-    @brief  Constructor for 8x16 pixel single-color mini matrices.
-  */
-  Adafruit_8x16minimatrix(void);
-
-  /*!
-    @brief  Lowest-level pixel drawing function required by Adafruit_GFX.
-            Does not have an immediate effect -- must call writeDisplay()
-            after any drawing operations to refresh display contents.
-    @param  x      Pixel column (horizontal).
-    @param  y      Pixel row (vertical).
-    @param  color  Pixel color (1 = pixel on, 0 = pixel off).
-  */
-  void drawPixel(int16_t x, int16_t y, uint16_t color);
-};
-
-/*!
-    @brief  Class for 8x8 pixel single-color matrices.
-*/
-class Adafruit_8x8matrix : public Adafruit_LEDBackpack, public Adafruit_GFX {
-public:
-  /*!
-    @brief  Constructor for 8x8 pixel single-color matrices.
-  */
-  Adafruit_8x8matrix(void);
-
-  /*!
-    @brief  Lowest-level pixel drawing function required by Adafruit_GFX.
-            Does not have an immediate effect -- must call writeDisplay()
-            after any drawing operations to refresh display contents.
-    @param  x      Pixel column (horizontal).
-    @param  y      Pixel row (vertical).
-    @param  color  Pixel color (1 = pixel on, 0 = pixel off).
-  */
-  void drawPixel(int16_t x, int16_t y, uint16_t color);
-};
-
-/*!
-    @brief  Class for bi-color matrices.
-*/
-class Adafruit_BicolorMatrix : public Adafruit_LEDBackpack,
-                               public Adafruit_GFX {
-public:
-  /*!
-    @brief  Constructor for 8x8 pixel bi-color matrices.
-  */
-  Adafruit_BicolorMatrix(void);
-
-  /*!
-    @brief  Lowest-level pixel drawing function required by Adafruit_GFX.
-            Does not have an immediate effect -- must call writeDisplay()
-            after any drawing operations to refresh display contents.
-    @param  x      Pixel column (horizontal).
-    @param  y      Pixel row (vertical).
-    @param  color  Pixel color (LED_OFF, LED_GREEN, LED_YELLOW or LED_RED).
-  */
-  void drawPixel(int16_t x, int16_t y, uint16_t color);
 };
 
 #define RAW_BITS 0 ///< Issue 7-segment data as raw bits
@@ -286,7 +179,7 @@ public:
     @brief  Print from a String object to 7-segment display.
     @param  c  String object, passed by reference.
   */
-  void print(const String &c);
+  void print(std::string &c);
 
   /*!
     @brief  Print from a C-style string array to 7-segment display.
@@ -347,7 +240,7 @@ public:
     @brief  Print from a String object w/newline to 7-segment display.
     @param  c  String object, passed by reference.
   */
-  void println(const String &c);
+  void println(std::string &c);
 
   /*!
     @brief  Print from a C-style string array w/newline to 7-segment display.
@@ -418,33 +311,6 @@ public:
 
 private:
   uint8_t position; ///< Current print position, 0-3
-};
-
-/*!
-    @brief  Class for four-digit alphanumeric displays.
-*/
-class Adafruit_AlphaNum4 : public Adafruit_LEDBackpack {
-public:
-  /*!
-    @brief  Constructor for four-digit alphanumeric displays.
-  */
-  Adafruit_AlphaNum4(void);
-
-  /*!
-    @brief  Write single character of alphanumeric display as raw bits
-            (not a general print function).
-    @param  n        Character index (0-3).
-    @param  bitmask  Segment bitmask.
-  */
-  void writeDigitRaw(uint8_t n, uint16_t bitmask);
-
-  /*!
-    @brief  Write single ASCII character to alphanumeric display.
-    @param  n      Character index (0-3).
-    @param  ascii  ASCII character.
-    @param  dot    If true, also light corresponding dot segment.
-  */
-  void writeDigitAscii(uint8_t n, uint8_t ascii, bool dot = false);
 };
 
 #endif // Adafruit_LEDBackpack_h
