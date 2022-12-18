@@ -43,7 +43,7 @@
 #define HT16K33_CMD_BRIGHTNESS 0xE0 ///< I2C register for BRIGHTNESS setting
 #define SEVENSEG_DIGITS 5 ///< # Digits in 7-seg displays, plus NUL end
 #define PROGMEM 
-#define DEC 0
+#define DEC 10
 
 /*!
     @brief  Class encapsulating the raw HT16K33 controller device.
